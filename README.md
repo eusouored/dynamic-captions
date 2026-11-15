@@ -26,6 +26,17 @@ O Dynamic Captions transcreve a fala, diferencia as vozes e cria legendas animad
 
 Internet durante a instalação e cerca de 15 GB livres no disco `C:`. Uma GPU NVIDIA com 8 GB ou mais de VRAM é recomendada.
 
+## Interface
+
+<div align="center">
+<picture>
+  <source media="(prefers-color-scheme: light)" srcset="assets/interface-light.png">
+  <img alt="Painel do Dynamic Captions com prévia da legenda, estilos e controles de fonte e posição." src="assets/interface-dark.png" width="480">
+</picture>
+<p><em>Compare estilos e ajuste a tipografia e a posição na prévia da legenda.</em></p>
+<p>Capturas com dados de demonstração · <a href="assets/interface-dark.png">Tema escuro</a> · <a href="assets/interface-light.png">Tema claro</a></p>
+</div>
+
 ## Suporte e licenças
 
 Para relatar um problema, informe as versões do plugin e do Premiere e descreva os passos para reproduzi-lo. [Abrir um chamado](https://github.com/eusouored/dynamic-captions/issues/new)

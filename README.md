@@ -1,2 +1,1 @@
-# dynamic-captions
-Dynamic Captions para Adobe Premiere Pro no Windows
+# Dynamic Captions  Transcreve a fala, separa as vozes e cria legendas animadas direto na timeline do Adobe Premiere Pro.  ## Instalação  1. Abra a Release da versão desejada. 2. Baixe o instalador .exe em Assets. 3. Feche o Premiere e siga as instruções do instalador.  Windows 10 ou 11 (64 bits), Adobe Premiere Pro 25 (2025) ou mais novo, internet durante a instalação e uns 15 GB livres no disco C:. Recomendado: placa NVIDIA com 8 GB ou mais.  O instalador baixa modelos e dependências durante a instalação. Para trabalho remunerado, selecione Trabalho pago. O separador SUPlime é reservado para uso não comercial.  Projeto independente para Adobe Premiere Pro.

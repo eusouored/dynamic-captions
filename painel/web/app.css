@@ -298,7 +298,7 @@ input[type="checkbox"] { accent-color: var(--ink); width: 15px; height: 15px; ma
 .toast.err { background: #B42318; color: #fff; }
 
 /* Torção: o contorno ondula (o filtro está no index.html; o app.js troca a semente no ritmo escolhido). */
-.wobble { filter: url(#sc-wobble); }
+.wobble { filter: url(#dc-wobble); }
 
 /* ---------- amostra animada da entrada (só a amostra sob o ponteiro, uma vez) */
 .caption-motion { --motion-duration: 180ms; transform-origin: center; }

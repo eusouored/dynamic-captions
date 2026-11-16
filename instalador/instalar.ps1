@@ -78,7 +78,7 @@ function Stop-Engine {
     if (-not (Test-Path $EngineJson)) { Ok "nenhum motor em execução"; return }
     try {
         $info = Get-Content $EngineJson -Raw | ConvertFrom-Json
-        Invoke-RestMethod -Method Post -TimeoutSec 5 -Headers @{ "X-SC-Token" = $info.token } `
+        Invoke-RestMethod -Method Post -TimeoutSec 5 -Headers @{ "X-DC-Token" = $info.token } `
             -Uri ("http://127.0.0.1:{0}/v1/engine/shutdown" -f $info.port) | Out-Null
         Start-Sleep -Seconds 2
         Ok "motor encerrado"
@@ -123,7 +123,7 @@ if (-not $PythonExe -and -not (Find-OfficialPython)) {
 
 # 0b. Tipo de uso: decide o separador de vozes (licença). Na reinstalação, o padrão é a escolha anterior.
 $prevPaid = $false
-if ($cfg -and $cfg.env -and $cfg.env.SMARTCAPTION_USO_COMERCIAL) { $prevPaid = ([string]$cfg.env.SMARTCAPTION_USO_COMERCIAL) -eq "1" }
+if ($cfg -and $cfg.env -and $cfg.env.DYNAMIC_CAPTIONS_USO_COMERCIAL) { $prevPaid = ([string]$cfg.env.DYNAMIC_CAPTIONS_USO_COMERCIAL) -eq "1" }
 if ($UsoComercial) { $paid = $true } elseif ($UsoPessoal) { $paid = $false } else {
     Write-Host ""
     Write-Host "Como o Dynamic Captions vai ser usado neste computador?"
@@ -147,7 +147,7 @@ if ($cfg -and $cfg.python -and ([string]$cfg.python).StartsWith($Runtime, [Syste
 #    Python oficial assinado, bibliotecas, assinaturas, import real, FFmpeg configurado e eventos
 #    CodeIntegrity (relatório em runtime-relatorio.json).
 $ffmpegEnv = ""
-if ($cfg -and $cfg.env -and $cfg.env.SMARTCAPTION_FFMPEG) { $ffmpegEnv = [string]$cfg.env.SMARTCAPTION_FFMPEG }
+if ($cfg -and $cfg.env -and $cfg.env.DYNAMIC_CAPTIONS_FFMPEG) { $ffmpegEnv = [string]$cfg.env.DYNAMIC_CAPTIONS_FFMPEG }
 try {
     $rt = & (Join-Path $Here "runtime-producao.ps1") -Motor (Join-Path $Here "motor") -Base $Base -PythonExe $PythonExe `
             -CertThumbprint $CertThumbprint -TimestampUrl $TimestampUrl -FFmpeg $ffmpegEnv -SemInstalar:$SemDependencias -ComoEtapa
@@ -186,28 +186,28 @@ Step "Atualizando $Launch"
 $envMap = [ordered]@{}
 if ($cfg -and $cfg.env) { $cfg.env.PSObject.Properties | ForEach-Object { $envMap[$_.Name] = [string]$_.Value } }
 $envMap["PYTHONPATH"] = $Motor
-if (-not $envMap.Contains("SMARTCAPTION_HOME")) { $envMap["SMARTCAPTION_HOME"] = $Base }
-$envMap["SMARTCAPTION_USO_COMERCIAL"] = $(if ($paid) { "1" } else { "0" })
+if (-not $envMap.Contains("DYNAMIC_CAPTIONS_HOME")) { $envMap["DYNAMIC_CAPTIONS_HOME"] = $Base }
+$envMap["DYNAMIC_CAPTIONS_USO_COMERCIAL"] = $(if ($paid) { "1" } else { "0" })
 $json = ([ordered]@{ python = $py; cwd = $Base; env = $envMap } | ConvertTo-Json -Depth 5)
 [System.IO.File]::WriteAllText($Launch, $json, (New-Object System.Text.UTF8Encoding($false)))
 Ok "PYTHONPATH -> $Motor"
-if ($envMap.Contains("SMARTCAPTION_MODELS")) { Ok "modelos: $($envMap['SMARTCAPTION_MODELS'])" }
+if ($envMap.Contains("DYNAMIC_CAPTIONS_MODELS")) { Ok "modelos: $($envMap['DYNAMIC_CAPTIONS_MODELS'])" }
 
 # 7. Versão do motor no runtime.
 Step "Conferindo o motor"
 # try/catch: no Windows PowerShell 5.1, qualquer linha em stderr com ErrorAction Stop vira excecao.
-$got = (Invoke-Native { & $pyCli -c "import sys; sys.path.insert(0, r'$Motor'); import smartcaption; print(smartcaption.__version__)" }) -join " "
+$got = (Invoke-Native { & $pyCli -c "import sys; sys.path.insert(0, r'$Motor'); import dynamic_captions; print(dynamic_captions.__version__)" }) -join " "
 if ($LASTEXITCODE -eq 0 -and $got -match [regex]::Escape($Version)) { Ok "motor $Version" } else { Warn "o motor nao carregou: $got" }
 
 # 7a. Conta da Hugging Face para o SUPlime (opcional). O token chega por variável de ambiente
-#     (SC_HF_TOKEN), nunca pela linha de comando, e não é escrito no registro da instalação.
-$hfTok = $env:SC_HF_TOKEN
+#     (DC_HF_TOKEN), nunca pela linha de comando, e não é escrito no registro da instalação.
+$hfTok = $env:DC_HF_TOKEN
 if ($hfTok -and -not $paid) {
     Step "Conta da Hugging Face (SUPlime)"
     $hfProbe = @'
 import os, sys
 from huggingface_hub import hf_hub_download, login
-tok = os.environ.get("SC_HF_TOKEN", "").strip()
+tok = os.environ.get("DC_HF_TOKEN", "").strip()
 def rede(e):  # sem internet / proxy / tempo esgotado: o token pode estar certo
     n = " ".join(x.__name__ for x in type(e).__mro__)
     return any(k in n for k in ("Connection", "Proxy", "Timeout", "Transport", "OfflineMode"))
@@ -226,7 +226,7 @@ print("liberado")
     $hfOut = (Invoke-Native { & $pyCli $hfFile }) -join " "
     $hfCode = $LASTEXITCODE
     Remove-Item $hfFile -Force -ErrorAction SilentlyContinue
-    Remove-Item Env:SC_HF_TOKEN -ErrorAction SilentlyContinue
+    Remove-Item Env:DC_HF_TOKEN -ErrorAction SilentlyContinue
     if ($hfCode -eq 0) { Ok "token aceito e SUPlime liberado" }
     elseif ($hfCode -eq 5) { Warn "Nao deu para falar com a Hugging Face agora (internet?). Rode o instalador de novo depois; ate la, o separador alternativo e usado." }
     elseif ($hfCode -eq 4) { Warn "Token aceito, mas falta aceitar os termos em huggingface.co/rewayai/suplime. Ate la, o separador alternativo e usado." }
@@ -237,7 +237,7 @@ print("liberado")
 Step "Modelos de transcricao e de vozes (ate ~7 GB na primeira vez, com o progresso a cada 5 s; nas proximas, segundos)"
 foreach ($k in $envMap.Keys) { Set-Item -Path ("Env:" + $k) -Value $envMap[$k] }
 $env:PYTHONUNBUFFERED = "1"  # cada linha de progresso aparece na hora (com a saida num pipe o Python guardaria em bloco)
-Invoke-Native { & $pyCli -m smartcaption.modelos baixar tudo } | ForEach-Object { Write-Host "   $_" }
+Invoke-Native { & $pyCli -m dynamic_captions.modelos baixar tudo } | ForEach-Object { Write-Host "   $_" }
 if ($LASTEXITCODE -eq 0) { Ok "modelos prontos" }
 else { Warn "Parte dos modelos ficou para depois: o motor baixa quando precisar (com internet), ou rode o instalador de novo." }
 

@@ -51,6 +51,8 @@ O instalador pergunta como o plugin vai ser usado:
 - **Uso pessoal:** pode usar o SUPlime, o separador de vozes mais preciso. Os pesos dele são CC BY-NC 4.0 (sem uso comercial) e exigem uma conta grátis na Hugging Face.
 - **Trabalho pago:** usa só separadores com licença comercial e não precisa de conta.
 
+Os estilos exportados no formato anterior não são reconhecidos pela compilação atual.
+
 ## Licença
 
 Código do Dynamic Captions: MIT com a "Commons Clause" v1.0 ([LICENSE.txt](LICENSE.txt)). Pode usar, estudar, modificar e redistribuir, mas não pode vender o software nem um serviço cujo valor venha dele.

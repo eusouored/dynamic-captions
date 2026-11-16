@@ -8,7 +8,7 @@
 #      teste nunca e reaproveitado: o runtime e criado em %LOCALAPPDATA%\DynamicCaptions\runtime;
 #   3. instala o PyTorch (CUDA 12.8) e as bibliotecas do motor;
 #   4. confere a assinatura de cada .exe/.dll/.pyd do runtime, do Python base e do FFmpeg
-#      configurado (launch.json > SMARTCAPTION_FFMPEG, ou -FFmpeg);
+#      configurado (launch.json > DYNAMIC_CAPTIONS_FFMPEG, ou -FFmpeg);
 #   5. com -CertThumbprint, assina o que estiver sem assinatura (certificado de producao de uma
 #      autoridade publica; certificado autoassinado NAO serve para o Controle Inteligente);
 #   6. testa "import torch" e as demais bibliotecas nativas num processo novo, e executa o FFmpeg;
@@ -193,7 +193,7 @@ if (-not $SemInstalar) {
 if (-not $FFmpeg) {
     $launch = Join-Path $Base "launch.json"
     if (Test-Path $launch) {
-        try { $cfg = Get-Content $launch -Raw | ConvertFrom-Json; if ($cfg.env.SMARTCAPTION_FFMPEG) { $FFmpeg = [string]$cfg.env.SMARTCAPTION_FFMPEG } } catch { }
+        try { $cfg = Get-Content $launch -Raw | ConvertFrom-Json; if ($cfg.env.DYNAMIC_CAPTIONS_FFMPEG) { $FFmpeg = [string]$cfg.env.DYNAMIC_CAPTIONS_FFMPEG } } catch { }
     }
 }
 $Result.ffmpeg = if ($FFmpeg) { $FFmpeg } else { "(nao configurado: o motor usa o do imageio-ffmpeg dentro do runtime)" }
@@ -251,7 +251,7 @@ $probe = @"
 import json, sys
 sys.path.insert(0, r'$Motor')
 out = {}
-for name in ['torch', 'torchaudio', 'numpy', 'soundfile', 'silero_vad', 'sherpa_onnx', 'PIL.Image', 'fontTools.ttLib', 'pydantic_core', 'tokenizers', 'safetensors', 'pyannote.audio', 'qwen_asr', 'smartcaption.api.app']:
+for name in ['torch', 'torchaudio', 'numpy', 'soundfile', 'silero_vad', 'sherpa_onnx', 'PIL.Image', 'fontTools.ttLib', 'pydantic_core', 'tokenizers', 'safetensors', 'pyannote.audio', 'qwen_asr', 'dynamic_captions.api.app']:
     try:
         m = __import__(name, fromlist=['x'])
         out[name] = getattr(m, '__version__', 'ok')

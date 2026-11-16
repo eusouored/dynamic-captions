@@ -4,7 +4,7 @@
  * Aplicar/Atualizar fica sempre no rodapé. */
 (function () {
   "use strict";
-  var host = window.SCHost;
+  var host = window.DCHost;
   var WAIT_USE = "Clique no painel para iniciar o Dynamic Captions.";
   var $app = document.getElementById("app");
   var player = document.getElementById("player");
@@ -69,7 +69,7 @@
   };
   // Biblioteca 0.1.8: categorias vindas do catálogo (category) mais coleções locais do painel.
   var WORD_DEFAULTS = { font_scale: 1, font_family: null, bold: null, italic: null, text_color: null, break_before: false };
-  var PRESET_FILE_SCHEMA = "smartcaption.estilos";
+  var PRESET_FILE_SCHEMA = "dynamic-captions.estilos";
   var PRESET_FILE_VERSION = 1;
   var ENGINE_VERSION = "0.3.1";  // o painel troca um motor de outra versão pelo desta
   var HEX = /^#[0-9A-Fa-f]{6}$/;
@@ -113,8 +113,8 @@
     try { var v = JSON.parse(localStorage.getItem(key) || "[]"); return Array.isArray(v) ? v.slice(0, max) : []; } catch (e) { return []; }
   }
   function writeList(key, list) { try { localStorage.setItem(key, JSON.stringify(list)); return true; } catch (e) { return false; } }
-  S.hiddenPresets = readList("sc:hiddenPresets", 60).filter(function (x) { return typeof x === "string"; });
-  S.savedStyles = readList("sc:savedStyles", 50).filter(function (x) {
+  S.hiddenPresets = readList("dc:hiddenPresets", 60).filter(function (x) { return typeof x === "string"; });
+  S.savedStyles = readList("dc:savedStyles", 50).filter(function (x) {
     return x && typeof x.name === "string" && typeof x.preset === "string" && x.overrides && typeof x.overrides === "object";
   });
   S.savedStyles.forEach(function (x) { LEGACY_STYLE_KEYS.forEach(function (k) { delete x.overrides[k]; }); });
@@ -149,7 +149,7 @@
   async function api(method, path, body) {
     var r = await fetch(S.conn.base + path, {
       method: method,
-      headers: { "X-SC-Token": S.conn.token, "Content-Type": "application/json" },
+      headers: { "X-DC-Token": S.conn.token, "Content-Type": "application/json" },
       body: body === undefined ? undefined : JSON.stringify(body)
     });
     var data = null;
@@ -227,7 +227,7 @@
     clearProject();
     if (!S.seq) return;
     var pid = null;
-    try { pid = localStorage.getItem("sc:last:" + S.seq.guid); } catch (e) { pid = null; }
+    try { pid = localStorage.getItem("dc:last:" + S.seq.guid); } catch (e) { pid = null; }
     if (!pid) return;
     try { await loadProject(pid); S.screen = "doc"; } catch (e) { clearProject(); }
   }
@@ -272,7 +272,7 @@
       if (final.state === "cancelled") throw new Error("CANCELADO");
       if (final.state !== "done") throw new Error(final.error || "a transcrição falhou");
       if ((final.result.warnings || []).indexOf("nenhuma fala detectada") >= 0) { S.screen = "semFala"; return; }
-      try { localStorage.setItem("sc:last:" + seq.guid, S.pid); } catch (e) { /* sem armazenamento */ }
+      try { localStorage.setItem("dc:last:" + seq.guid, S.pid); } catch (e) { /* sem armazenamento */ }
       await loadProject(S.pid);
       S.screen = "doc";
       S.warnings = final.result.warnings || [];
@@ -334,9 +334,7 @@
       try {
         var target = await api("POST", "/v1/projects/" + pid + "/audio-target");
         var png = target.path.replace(/\.wav$/i, "_quadro.png");
-        var applied = S.project.applied;
-        await host.exportFrame(offset() + t, png, S.project.sequence_guid,
-          applied && applied.mode === "animated" ? applied.clips : []);
+        await host.exportFrame(offset() + t, png, S.project.sequence_guid, previousManifest());
         if (S.pid !== pid) return null;
         S.frameBg = png; S.frameT = t;
         S.frameUrl = mediaUrl("/v1/projects/" + pid + "/frame.jpg", { w: 960 }) + "&v=" + Date.now();
@@ -497,7 +495,7 @@
     var item = { name: name, preset: S.style.preset, overrides: styleOnly(resolved()), reading: S.style.reading };
     var list = S.savedStyles.filter(function (p) { return p.name.toLowerCase() !== name.toLowerCase(); });
     list.push(item);
-    if (!writeList("sc:savedStyles", list.slice(-50))) { toast("Não foi possível salvar o estilo neste painel.", "err"); return; }
+    if (!writeList("dc:savedStyles", list.slice(-50))) { toast("Não foi possível salvar o estilo neste painel.", "err"); return; }
     var replaced = list.length - 1 < S.savedStyles.length, dropped = list.length > 50 ? list[0].name : null;
     S.savedStyles = list.slice(-50); S.presetName = "";
     toast(replaced ? "“" + name + "” atualizado em Meus modelos." : dropped ? "Salvo. Limite de 50: “" + dropped + "” saiu da lista." : "Estilo salvo em Meus modelos.");
@@ -506,7 +504,7 @@
   function deleteSaved(i) {
     var item = S.savedStyles[i]; if (!item) return;
     var list = S.savedStyles.filter(function (_, j) { return j !== i; });
-    if (!writeList("sc:savedStyles", list)) { toast("Não foi possível alterar Meus modelos.", "err"); return; }
+    if (!writeList("dc:savedStyles", list)) { toast("Não foi possível alterar Meus modelos.", "err"); return; }
     S.savedStyles = list; toast("“" + item.name + "” removido de Meus modelos.");
   }
 
@@ -514,11 +512,11 @@
   function deletePreset(id) {
     if (S.hiddenPresets.indexOf(id) >= 0) return;
     var list = S.hiddenPresets.concat([id]);
-    if (!writeList("sc:hiddenPresets", list)) { toast("Não foi possível alterar Meus modelos.", "err"); return; }
+    if (!writeList("dc:hiddenPresets", list)) { toast("Não foi possível alterar Meus modelos.", "err"); return; }
     S.hiddenPresets = list; toast("“" + (STYLE_NAMES[id] || id) + "” apagado.");
   }
   function restorePresets() {
-    if (!writeList("sc:hiddenPresets", [])) { toast("Não foi possível alterar Meus modelos.", "err"); return; }
+    if (!writeList("dc:hiddenPresets", [])) { toast("Não foi possível alterar Meus modelos.", "err"); return; }
     S.hiddenPresets = []; toast("Visuais do plugin restaurados.");
   }
 
@@ -614,7 +612,7 @@
     if (result.styles.length) {
       var names = {}; result.styles.forEach(function (p) { names[p.name.toLowerCase()] = true; });
       var list = S.savedStyles.filter(function (p) { return !names[p.name.toLowerCase()]; }).concat(result.styles).slice(-50);
-      if (!writeList("sc:savedStyles", list)) result.problems.push("não foi possível guardar neste painel");
+      if (!writeList("dc:savedStyles", list)) result.problems.push("não foi possível guardar neste painel");
       else S.savedStyles = list;
     }
     S.importReport = { added: result.styles.length, problems: result.problems };
@@ -817,7 +815,7 @@
               S.project = await api("GET", "/v1/projects/" + S.pid);
             } catch (e2) { /* não mascara o erro original */ }
             S.applyResult = { error: pe.message + (saved ? " A legenda ficou incompleta na timeline; aplique de novo para completar."
-              : " A legenda ficou incompleta na timeline. Use “Remover legendas” e aplique de novo; se aparecer conflito, apague à mão os clipes SC_ da faixa das legendas.") };
+              : " A legenda ficou incompleta na timeline. Use “Remover legendas” e aplique de novo; se aparecer conflito, apague à mão os clipes DC_ da faixa das legendas.") };
             return;
           }
           throw pe;
@@ -831,7 +829,12 @@
       } else {
         var exp = await api("POST", "/v1/projects/" + S.pid + "/exports", { format: "srt", preset: "auto", style: "projeto", content_end_us: seq.content_end_us || null });
         await host.applyNative(exp.path, offset(), S.project.sequence_guid);
-        await api("PUT", "/v1/projects/" + S.pid + "/applied", { mode: "native", rev: exp.rev, style_key: S.style.key, clips: [] });
+        // A legenda nativa não tira da timeline a animada aplicada antes: o manifesto continua com
+        // esses clipes. Com clips: [], "Liberar espaço" os via como sem uso e movia os arquivos,
+        // deixando mídia offline no Premiere; "Remover legendas" também deixava de achá-los.
+        var keep = previousManifest(), was = S.project.applied || {};
+        await api("PUT", "/v1/projects/" + S.pid + "/applied", { mode: "native", rev: exp.rev, style_key: S.style.key, clips: keep,
+          sequence_guid: keep.length ? was.sequence_guid : null, track_index: keep.length ? was.track_index : null });
         S.applyResult = { mode: "native" };
       }
       S.project = await api("GET", "/v1/projects/" + S.pid);
@@ -842,7 +845,8 @@
 
   function previousManifest() {
     var a = S.project && S.project.applied;
-    return a && a.mode === "animated" && a.sequence_guid === S.project.sequence_guid ? (a.clips || []) : [];
+    // Vale também depois de uma legenda nativa: os clipes animados de antes continuam na timeline.
+    return a && a.sequence_guid === S.project.sequence_guid ? (a.clips || []) : [];
   }
 
   async function removeApplied() {
@@ -982,7 +986,7 @@
       '<button role="menuitem" data-act="refresh">' + icon("refresh") + "Ler a sequência de novo</button>" +
       (S.conn ? '<button role="menuitem" data-act="space">' + icon("trash") + "Liberar espaço</button>" : "") +
       (S.transcript && S.conn ? '<button role="menuitem" data-act="wide">' + icon("expand") + "Abrir em janela grande</button>" : "") +
-      (applied && applied.mode === "animated" && host.canPremiere ? '<button role="menuitem" data-act="remove" class="danger">' + icon("trash") + "Tirar legendas da sequência</button>" : "") +
+      (applied && (applied.clips || []).length && host.canPremiere ? '<button role="menuitem" data-act="remove" class="danger">' + icon("trash") + "Tirar legendas da sequência</button>" : "") +
       "</div>" : "";
     return '<header class="top"><div class="ttl"><h1 title="' + esc(name) + '">' + esc(name) + "</h1>" + (range ? '<span class="tc">' + esc(range) + "</span>" : "") + "</div>" +
       statusChip() + '<button class="ib" data-act="menu" aria-haspopup="menu" aria-expanded="' + !!S.menu + '" aria-label="Mais ações">' + icon("more") + "</button>" + menu + "</header>";
@@ -1022,7 +1026,9 @@
     }).join("");
   }
 
-  /* Prévia rápida com a geometria do motor (layouts): cada palavra fica parada durante a fala;
+  /* Negrito é 700 em todo o painel: no Windows o Chrome do CEP resolve 800 do Arial como Arial Black (mais larga),
+     e a prévia saía com as palavras coladas, diferente do vídeo (Arial Negrito).
+     Prévia rápida com a geometria do motor (layouts): cada palavra fica parada durante a fala;
      só cor, marca-texto e escala da palavra ativa mudam. */
   function layoutHtml(layout, block, st, boxH, seq, words, activeIdx, hl, shadow) {
     var k = boxH / seq.height;
@@ -1047,7 +1053,7 @@
       var color = active && st.karaoke !== "none" ? hl : (tok.text_color || st.text_color);
       if (active && st.marker === "active") color = markedColor(color, st.marker_color);
       var scale = active && (st.active_scale || 1) !== 1 ? "transform:scale(" + st.active_scale + ");" : "";
-      html += '<span class="tok' + (S.sel === tok.word_id ? " picked" : "") + '" data-act="pick" data-v="' + esc(tok.word_id) + '" style="left:' + left.toFixed(3) + '%;top:' + top.toFixed(3) + '%;width:' + width.toFixed(3) + '%;height:' + height.toFixed(3) + '%;font-size:' + ((tok.em_size || tok.font_size * 0.9) * k).toFixed(1) + 'px;line-height:' + (tok.height * k).toFixed(1) + 'px;font-family:\'' + esc(tok.font_family || st.font_family) + '\',sans-serif;font-weight:' + (tok.bold ? 800 : 400) + ';font-style:' + (tok.italic ? "italic" : "normal") + ';color:' + esc(color) + ';' + scale + shadow + (hidden ? "visibility:hidden;" : "") + '">' + label + '</span>';
+      html += '<span class="tok' + (S.sel === tok.word_id ? " picked" : "") + '" data-act="pick" data-v="' + esc(tok.word_id) + '" style="left:' + left.toFixed(3) + '%;top:' + top.toFixed(3) + '%;width:' + width.toFixed(3) + '%;height:' + height.toFixed(3) + '%;font-size:' + ((tok.em_size || tok.font_size * 0.9) * k).toFixed(1) + 'px;line-height:' + (tok.height * k).toFixed(1) + 'px;font-family:\'' + esc(tok.font_family || st.font_family) + '\',sans-serif;font-weight:' + (tok.bold ? 700 : 400) + ';font-style:' + (tok.italic ? "italic" : "normal") + ';color:' + esc(color) + ';' + scale + shadow + (hidden ? "visibility:hidden;" : "") + '">' + label + '</span>';
     });
     return '<div class="stage-box" style="aspect-ratio:' + seq.width + '/' + seq.height + '">' + html + '</div>';
   }
@@ -1094,7 +1100,7 @@
       // A legenda da prévia fica parada: repetir a entrada a cada redesenho fazia o quadro piscar.
       // A entrada de cada estilo aparece na amostra sob o ponteiro.
       var anim = "none";
-      caption = '<div class="cap" style="' + pos + '"><div class="caption-motion motion-' + anim + (st.wobble ? " wobble" : "") + '" style="--motion-duration:' + st.animation_ms + 'ms;font-family:\'' + esc(st.font_family) + '\',sans-serif;font-weight:' + (st.bold ? 800 : 400) + ";font-style:" + (st.italic ? "italic" : "normal") + ";letter-spacing:" + ((st.spacing_px || 0) * k1080).toFixed(2) + "px;font-size:" + fontPx.toFixed(1) + "px;line-height:1.2;" + shadow + boxCss + '">' + lines + "</div></div>";
+      caption = '<div class="cap" style="' + pos + '"><div class="caption-motion motion-' + anim + (st.wobble ? " wobble" : "") + '" style="--motion-duration:' + st.animation_ms + 'ms;font-family:\'' + esc(st.font_family) + '\',sans-serif;font-weight:' + (st.bold ? 700 : 400) + ";font-style:" + (st.italic ? "italic" : "normal") + ";letter-spacing:" + ((st.spacing_px || 0) * k1080).toFixed(2) + "px;font-size:" + fontPx.toFixed(1) + "px;line-height:1.2;" + shadow + boxCss + '">' + lines + "</div></div>";
     }
     var dx = st.offset_x_pct || 0, dy = st.offset_y_pct || 0;
     var frameBg = S.frameUrl ? "background-image:url('" + S.frameUrl + "');" : "";
@@ -1159,7 +1165,7 @@
     var mainIdx = 0;
     words.forEach(function (w, i) { if (letters(w) > letters(words[mainIdx])) mainIdx = i; });
     var hl = esc(spec.highlight_color || "#FFD400");
-    var base = 'font-family:\'' + esc(spec.font_family || "Arial") + '\',sans-serif;font-weight:' + (spec.bold === false ? 400 : 800) + ';font-style:' + (spec.italic ? "italic" : "normal") + ';color:' + esc(spec.text_color || "#fff") + ';' +
+    var base = 'font-family:\'' + esc(spec.font_family || "Arial") + '\',sans-serif;font-weight:' + (spec.bold === false ? 400 : 700) + ';font-style:' + (spec.italic ? "italic" : "normal") + ';color:' + esc(spec.text_color || "#fff") + ';' +
       (spec.spacing_px ? "letter-spacing:" + Math.min(3, spec.spacing_px / 3) + "px;" : "");
     var deco = spec.box ? "background:" + rgba(spec.box_color || "#000000", spec.box_opacity == null ? .6 : Math.max(.35, spec.box_opacity)) + ";padding:2px 8px;border-radius:3px;box-shadow:0 0 0 1px rgba(255,255,255,.12);" :
       (spec.glow_px ? "text-shadow:0 0 3px " + esc(spec.outline_color) + ",0 0 10px " + esc(spec.outline_color) + ";" : "");
@@ -1363,7 +1369,7 @@
     var native = nativeMode();
     var ec = effectiveColors(st, activeSpeakers().filter(function (sp) { return sp.include_in_captions !== false; })[0]);  // o que a 1ª voz mostra
     return '<div class="adj">' +
-      '<div class="fontbox"><span class="aa" style="font-family:\'' + esc(st.font_family) + '\';font-weight:' + (st.bold ? 800 : 400) + ";font-style:" + (st.italic ? "italic" : "normal") + '" aria-hidden="true">Aa</span>' +
+      '<div class="fontbox"><span class="aa" style="font-family:\'' + esc(st.font_family) + '\';font-weight:' + (st.bold ? 700 : 400) + ";font-style:" + (st.italic ? "italic" : "normal") + '" aria-hidden="true">Aa</span>' +
         '<div class="fontpick"><label class="sr" for="font">Fonte</label><select id="font" class="field fsel" data-change="font" style="font-family:\'' + esc(st.font_family) + '\'">' + fontOptions(fonts, st.font_family) + "</select>" +
         '<label class="search">' + icon("search") + '<span class="sr">Filtrar fontes</span><input id="fontSearch" type="search" data-input="fontQuery" placeholder="Buscar entre ' + fonts.length + ' fontes" value="' + esc(S.fontQuery || "") + '"></label></div></div>' +
       '<div class="line">' + toggle(st, "bold", "Negrito", "<b>B</b>") + toggle(st, "italic", "Itálico", "<i>I</i>") + toggle(st, "uppercase", "Maiúsculas", "AA") +
@@ -1656,7 +1662,7 @@
       '<p class="hint">Ele não carrega nada enquanto o Premiere abre, para não atrasar a abertura.</p>' +
       '<button class="btn dark" data-act="start">Iniciar o Dynamic Captions</button></div>';
     if (S.phase === "connecting") return '<div class="hero"><h2>' + esc(S.status) + '</h2><div class="bar indet"><i></i></div></div>';
-    if (S.phase === "setup") return screenMsg("warn", "Preparação inicial", "O painel não encontrou o Dynamic Captions instalado neste computador. Rode uma vez, no ambiente do motor:<br><code>python -m smartcaption.instalar_painel</code><br>Depois feche e abra o painel.", '<button class="btn" data-act="retry">Tentar de novo</button>');
+    if (S.phase === "setup") return screenMsg("warn", "Preparação inicial", "O painel não encontrou o motor do Dynamic Captions neste computador. Rode o instalador do Dynamic Captions de novo (ou, no Menu Iniciar, Dynamic Captions › Verificar instalação). Depois feche e abra o painel.", '<button class="btn" data-act="retry">Tentar de novo</button>');
     if (S.phase === "token") return screenMsg("warn", "Abra pelo painel", "Esta janela é aberta pelo menu do painel no Premiere (Abrir em janela grande).", "");
     if (S.phase === "motorOff") return screenMsg("err", "O Dynamic Captions não respondeu", "O serviço de transcrição deste computador não iniciou. Sua edição não é afetada.<br><small>" + esc(S.error) + "</small>", '<button class="btn dark" data-act="retry">Tentar de novo</button>');
     var s = S.screen;
@@ -2021,7 +2027,7 @@
   var wobbleSeed = 1;
   (function wobbleTick() {
     var st = S.style && S.style.resolved;
-    var noise = document.getElementById("sc-wobble-noise");
+    var noise = document.getElementById("dc-wobble-noise");
     if (noise && !reducedMotion() && document.querySelector(".wobble")) noise.setAttribute("seed", String(wobbleSeed = wobbleSeed % 6 + 1));
     setTimeout(wobbleTick, Math.max(60, (st && st.wobble_ms) || 220));
   })();
@@ -2041,5 +2047,5 @@
     if (pid && S.phase === "ready" && !S.pid) { try { await loadProject(pid); S.screen = "doc"; } catch (e) { /* projeto removido */ } render(); }
   });
 
-  window.SC_STATE = S; // para testes automatizados
+  window.DC_STATE = S; // para testes automatizados
 })();

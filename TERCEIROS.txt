@@ -57,6 +57,11 @@ BIBLIOTECAS (instaladas pelo pip, do PyPI)
   (Apache-2.0), faster-whisper (MIT), hf_transfer (Apache-2.0), imageio-ffmpeg (BSD-2; o FFmpeg que ele
   baixa é GPL, ver RESUMO).
 
+  Dependências indiretas com licença copyleft, também instaladas pelo pip no
+  computador de quem instala (nenhuma vai no pacote nem tem o código alterado):
+  soynlp (GPL-3.0, puxada pelo qwen-asr) e soxr (LGPL-2.1, puxada pelo
+  librosa). O código do Dynamic Captions não as copia nem as inclui.
+
 
 MARCAS
 ------

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Painel CEP do Dynamic Captions para o Premiere Pro. Instalado por: python -m dynamic_captions.instalar_painel -->
+<ExtensionManifest Version="10.0" ExtensionBundleId="com.dynamic.captions" ExtensionBundleVersion="0.3.1" ExtensionBundleName="Dynamic Captions">
+  <ExtensionList>
+    <Extension Id="com.dynamic.captions.main" Version="0.3.1"/>
+  </ExtensionList>
+  <ExecutionEnvironment>
+    <HostList>
+      <Host Name="PPRO" Version="[24.0,99.9]"/>
+    </HostList>
+    <LocaleList>
+      <Locale Code="All"/>
+    </LocaleList>
+    <RequiredRuntimeList>
+      <RequiredRuntime Name="CSXS" Version="10.0"/>
+    </RequiredRuntimeList>
+  </ExecutionEnvironment>
+  <DispatchInfoList>
+    <Extension Id="com.dynamic.captions.main">
+      <DispatchInfo Host="PPRO">
+        <Resources>
+          <MainPath>./web/index.html</MainPath>
+          <ScriptPath>./jsx/host.jsx</ScriptPath>
+          <CEFCommandLine>
+            <Parameter>--enable-nodejs</Parameter>
+            <Parameter>--mixed-context</Parameter>
+          </CEFCommandLine>
+        </Resources>
+        <Lifecycle>
+          <AutoVisible>true</AutoVisible>
+        </Lifecycle>
+        <UI>
+          <Type>Panel</Type>
+          <Menu>Dynamic Captions</Menu>
+          <Geometry>
+            <Size><Height>880</Height><Width>420</Width></Size>
+            <MinSize><Height>500</Height><Width>320</Width></MinSize>
+            <MaxSize><Height>3000</Height><Width>3000</Width></MaxSize>
+          </Geometry>
+          <Icons>
+            <Icon Type="Normal">./icons/dc-light.png</Icon>
+            <Icon Type="RollOver">./icons/dc-light.png</Icon>
+            <Icon Type="DarkNormal">./icons/dc-dark.png</Icon>
+            <Icon Type="DarkRollOver">./icons/dc-dark.png</Icon>
+          </Icons>
+        </UI>
+      </DispatchInfo>
+    </Extension>
+  </DispatchInfoList>
+</ExtensionManifest>

@@ -3,9 +3,9 @@ requires = ["setuptools>=69"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "smartcaption-engine"
+name = "dynamic-captions-engine"
 dynamic = ["version"]
-description = "Motor local do Dynamic Captions Studio: transcrição, falantes, legendas e renderização."
+description = "Motor local do Dynamic Captions: transcrição, falantes, legendas e renderização."
 requires-python = ">=3.11"
 dependencies = [
     "pydantic>=2.7",
@@ -32,29 +32,29 @@ base-motores = [
     "suplime==0.2.0",  # pesos CC BY-NC (uso pessoal)
     "sherpa-onnx>=1.12",
     # Modelos de vários GB em várias conexões (Apache-2.0). Numa conexão só, um modelo de 4,2 GB
-    # chegou a levar 2h30; ver smartcaption/rede.py.
+    # chegou a levar 2h30; ver dynamic_captions/rede.py.
     "hf_transfer>=0.1.8",
 ]
 preciso = [
-    "smartcaption-engine[base-motores]",
+    "dynamic-captions-engine[base-motores]",
     "qwen-asr==0.0.6",  # fixa transformers 4.57.6 e accelerate 1.12.0
 ]
 equilibrado = [
-    "smartcaption-engine[base-motores]",
+    "dynamic-captions-engine[base-motores]",
     "faster-whisper>=1.1",
     "qwen-asr==0.0.6",
 ]
-universal = ["smartcaption-engine[base-motores]"]
+universal = ["dynamic-captions-engine[base-motores]"]
 ffmpeg = ["imageio-ffmpeg>=0.5"]  # FFmpeg embutido, se não houver um no PATH
 
 [tool.setuptools.dynamic]
-version = {attr = "smartcaption.__version__"}
+version = {attr = "dynamic_captions.__version__"}
 
 [tool.setuptools.packages.find]
-include = ["smartcaption*"]
+include = ["dynamic_captions*"]
 
 [tool.setuptools.package-data]
-smartcaption = ["web/*", "web/fonts/*", "web/icons/*", "cep/CSXS/*", "cep/jsx/*", "cep/icons/*"]
+dynamic_captions = ["web/*", "web/fonts/*", "web/icons/*", "cep/CSXS/*", "cep/jsx/*", "cep/icons/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

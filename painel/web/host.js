@@ -62,7 +62,7 @@
     }
 
     /* Se o host.jsx falhou ao carregar com o Premiere ainda abrindo ("Error evaluating script"
-       no log do CEP), as funções sc_* não existem: carrega de novo em vez de falhar até reabrir. */
+       no log do CEP), as funções dc_* não existem: carrega de novo em vez de falhar até reabrir. */
     var scriptReady = null;
     function extensionDir() {
       var raw = typeof cep.getSystemPath === "function" ? cep.getSystemPath("extension") : "";
@@ -72,10 +72,10 @@
     function ensureScript() {
       if (scriptReady) return scriptReady;
       var attempt = scriptReady = (async function () {
-        if ((await evalRaw("typeof sc_getSequence")) === "function") return;
+        if ((await evalRaw("typeof dc_getSequence")) === "function") return;
         var dir = extensionDir();
         if (dir) await evalRaw("$.evalFile(new File(" + JSON.stringify(dir + "/jsx/host.jsx") + "))");
-        if ((await evalRaw("typeof sc_getSequence")) !== "function") {
+        if ((await evalRaw("typeof dc_getSequence")) !== "function") {
           throw new Error("o Premiere ainda não carregou os comandos do Dynamic Captions; tente de novo em alguns segundos");
         }
       })();
@@ -111,7 +111,7 @@
         // A porta pode responder durante uma reinicialização com o token anterior.
         // Só conecte depois que o arquivo e o serviço concordarem.
         var r = await fetchT("http://127.0.0.1:" + info.port + "/v1/projects", {
-          cache: "no-store", headers: { "X-SC-Token": info.token }
+          cache: "no-store", headers: { "X-DC-Token": info.token }
         });
         return r.ok;
       } catch (e) { return false; }
@@ -154,13 +154,13 @@
     if (typeof window.addEventListener === "function") {
       window.addEventListener("unload", function () {
         if (!lastConn) return;
-        try { fetch(lastConn.base + "/v1/engine/shutdown", { method: "POST", headers: { "X-SC-Token": lastConn.token }, keepalive: true }); } catch (e) { /* saindo */ }
+        try { fetch(lastConn.base + "/v1/engine/shutdown", { method: "POST", headers: { "X-DC-Token": lastConn.token }, keepalive: true }); } catch (e) { /* saindo */ }
       });
     }
 
     async function stopEngine(port, token, pid) {
       if (token) {
-        try { await fetch("http://127.0.0.1:" + port + "/v1/engine/shutdown", { method: "POST", headers: { "X-SC-Token": token } }); } catch (e) { /* antigo */ }
+        try { await fetch("http://127.0.0.1:" + port + "/v1/engine/shutdown", { method: "POST", headers: { "X-DC-Token": token } }); } catch (e) { /* antigo */ }
         for (var i = 0; i < 10 && (await engineVersion(port)) !== null; i++) await sleep(300);
       }
       if ((await engineVersion(port)) === null) return true;
@@ -203,10 +203,10 @@
         if (!used && onStatus) onStatus(WAIT_USE);
         await whenUsed();
         if (onStatus) onStatus("Iniciando o Dynamic Captions…");
-        var child = childProcess.spawn(launch.python, ["-m", "smartcaption.api"], {
+        var child = childProcess.spawn(launch.python, ["-m", "dynamic_captions.api"], {
           cwd: launch.cwd || dir, detached: true, windowsHide: true, stdio: "ignore",
           // O motor sobe a partir daqui até achar o Premiere e fecha quando ele fechar (api/vigia.py).
-          env: Object.assign({}, process.env, launch.env || {}, { SMARTCAPTION_PANEL_PID: String(process.pid) })
+          env: Object.assign({}, process.env, launch.env || {}, { DYNAMIC_CAPTIONS_PANEL_PID: String(process.pid) })
         });
         child.unref();
         for (var i = 0; i < 60; i++) {
@@ -223,23 +223,23 @@
         }
         throw new Error("ENGINE_TIMEOUT");
       },
-      getSequence: function () { return call("sc_getSequence").then(function (d) { return d.sequence; }); },
-      findAudioPresets: function () { return call("sc_findAudioPresets").then(function (d) { return d.presets; }); },
-      exportAudio: function (out, preset, useInOut) { return call("sc_exportAudio", [out, preset, !!useInOut]); },
+      getSequence: function () { return call("dc_getSequence").then(function (d) { return d.sequence; }); },
+      findAudioPresets: function () { return call("dc_findAudioPresets").then(function (d) { return d.presets; }); },
+      exportAudio: function (out, preset, useInOut) { return call("dc_exportAudio", [out, preset, !!useInOut]); },
       exportAudioContext: function (out, preset, start, end, guid) {
-        return call("sc_exportAudioContext", [out, preset, start, end, guid]);
+        return call("dc_exportAudioContext", [out, preset, start, end, guid]);
       },
-      seek: function (us) { return call("sc_seek", [us]); },
+      seek: function (us) { return call("dc_seek", [us]); },
       /* Contrato completo: path, key, seq_start_us e seq_end_us de cada bloco, a sequência
        * obrigatória e o manifesto do que este projeto colocou antes (propriedade). */
       applyAnimated: function (clips, guid, previous) {
         var full = clips.map(function (c) { return { path: c.path, key: c.key, label: c.label, seq_start_us: c.seq_start_us, seq_end_us: c.seq_end_us }; });
-        return call("sc_applyAnimated", [full, guid, previous || []]);
+        return call("dc_applyAnimated", [full, guid, previous || []]);
       },
-      releaseClips: function (paths) { return call("sc_releaseClips", [paths]); },
-      removeAnimated: function (guid, previous) { return call("sc_removeAnimated", [guid, previous || []]); },
-      applyNative: function (srt, startUs, guid) { return call("sc_applyNative", [srt, startUs, guid]); },
-      exportFrame: function (us, out, guid, previous) { return call("sc_exportFrame", [us, out, guid, previous || []]); },
+      releaseClips: function (paths) { return call("dc_releaseClips", [paths]); },
+      removeAnimated: function (guid, previous) { return call("dc_removeAnimated", [guid, previous || []]); },
+      applyNative: function (srt, startUs, guid) { return call("dc_applyNative", [srt, startUs, guid]); },
+      exportFrame: function (us, out, guid, previous) { return call("dc_exportFrame", [us, out, guid, previous || []]); },
       /* API suportada do CEP (a mesma que o CSInterface.js usa): cep.util.openURLInDefaultBrowser. */
       openExternal: function (url) {
         var util = window.cep && window.cep.util;
@@ -265,8 +265,8 @@
       canPremiere: false,
       connect: async function () {
         var p = new URLSearchParams(location.hash.slice(1));
-        var token = p.get("token") || sessionStorage.getItem("sc-token") || "";
-        if (token) { try { sessionStorage.setItem("sc-token", token); } catch (e) { /* sem armazenamento */ } }
+        var token = p.get("token") || sessionStorage.getItem("dc-token") || "";
+        if (token) { try { sessionStorage.setItem("dc-token", token); } catch (e) { /* sem armazenamento */ } }
         if (!token) throw new Error("NEEDS_TOKEN");
         return { base: location.origin, token: token };
       },
@@ -278,5 +278,5 @@
     };
   }
 
-  window.SCHost = window.SCHostOverride || (window.__adobe_cep__ ? cepHost() : browserHost());
+  window.DCHost = window.DCHostOverride || (window.__adobe_cep__ ? cepHost() : browserHost());
 })();

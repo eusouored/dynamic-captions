@@ -10,7 +10,7 @@ $EngineJson = Join-Path $Home_ "engine.json"
 if (Test-Path $EngineJson) {
     try {
         $info = Get-Content $EngineJson -Raw | ConvertFrom-Json
-        Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:$($info.port)/v1/engine/shutdown" -Headers @{ "X-SC-Token" = $info.token } -TimeoutSec 5 | Out-Null
+        Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:$($info.port)/v1/engine/shutdown" -Headers @{ "X-DC-Token" = $info.token } -TimeoutSec 5 | Out-Null
         Start-Sleep -Seconds 2
     } catch {}
 }

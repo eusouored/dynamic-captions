@@ -48,7 +48,7 @@ SOFTWARE.
 Escopo / Scope
 
 Esta licença cobre somente o código próprio do Dynamic Captions: o painel
-(web/, jsx/, ícones), o motor local (pacote Python smartcaption) e os scripts
+(web/, jsx/, ícones), o motor local (pacote Python dynamic_captions) e os scripts
 de instalação. As fontes, os modelos de IA e as bibliotecas listados em
 TERCEIROS.txt continuam com as licenças deles e não estão sujeitos à Commons
 Clause.

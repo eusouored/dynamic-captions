@@ -1,0 +1,94 @@
+Dynamic Captions 0.3.1 — legendas animadas no Adobe Premiere Pro
+==================================================================
+
+COMO INSTALAR (uns 20 a 40 minutos na primeira vez, quase tudo download)
+-----------------------------------------------------------------------
+1. Execute o instalador do Dynamic Captions. O Windows pode avisar "editor
+   desconhecido": o instalador não tem certificado comprado.
+2. Siga as telas: boas-vindas, licença e opções. Nas opções, escolha "uso
+   pessoal" ou "trabalho pago" (veja TERCEIROS.txt: muda só o separador de
+   vozes) e deixe marcada a instalação do Python 3.12, se ainda não tiver.
+   No uso pessoal, o campo "Token" (opcional) libera o SUPlime, o separador de
+   vozes mais preciso (conta grátis na Hugging Face).
+3. Espere terminar: ele baixa as bibliotecas e os modelos que o SEU computador
+   vai usar (com placa NVIDIA, ~3 GB de bibliotecas e até ~7 GB de modelos).
+   Os modelos vêm em várias conexões ao mesmo tempo, com o andamento (MB e
+   velocidade) a cada 5 segundos. Nas atualizações, leva poucos minutos.
+4. No Premiere, procure o painel Dynamic Captions no menu Janela. Se o Premiere
+   estava aberto, reinicie-o.
+
+PRECISA TER
+-----------
+  - Windows 10 ou 11 e Adobe Premiere Pro 25 (2025) ou mais novo;
+  - internet na instalação;
+  - recomendado: placa NVIDIA com 8 GB ou mais. Com placa NVIDIA de 4 a 8 GB
+    funciona (perfil Equilibrado). Sem placa NVIDIA também funciona, só que a
+    transcrição fica bem mais lenta (perfil Universal, no processador);
+  - uns 15 GB livres no disco C:.
+
+O QUE O INSTALADOR MEXE
+-----------------------
+  %APPDATA%\Adobe\CEP\extensions\com.dynamic.captions   o painel
+  %LOCALAPPDATA%\DynamicCaptions\                       motor, Python próprio, modelos, legendas renderizadas
+  %USERPROFILE%\.cache\huggingface\                     modelos baixados do Hugging Face (pasta padrão, compartilhada)
+  Menu Iniciar > Dynamic Captions                       atalhos: ativar o painel, verificar a instalação, desinstalar
+  Configurações > Aplicativos                           entrada para desinstalar
+  Registro do seu usuário (opcional, se marcado nas opções): PlayerDebugMode
+    do Adobe CEP, para o Premiere carregar extensões com certificado próprio.
+A versão anterior fica guardada em %LOCALAPPDATA%\DynamicCaptions\backup\<data-hora>
+antes de qualquer troca. Projetos e legendas aplicadas não são apagados.
+
+SE DER ERRADO
+-------------
+O painel não aparece no menu Janela
+  Menu Iniciar > Dynamic Captions > "Ativar painel no Premiere" (explica o que
+  muda e pede confirmação; tem a opção de desfazer).
+
+"bloqueado pelo Windows" / WinError 4551 / "Uma política de Controle de Aplicativo bloqueou"
+  É o Controle Inteligente de Aplicativos (Smart App Control) do Windows 11
+  bloqueando arquivos do PyTorch que não têm assinatura digital. O instalador
+  detecta e para sem trocar nada. Para usar o Dynamic Captions é preciso
+  desligar essa proteção: Segurança do Windows > Controle de aplicativos e do
+  navegador > Configurações do Controle Inteligente de Aplicativos > Desativado.
+  Decisão sua. Depois de desligar, rode o instalador de novo.
+
+"O Dynamic Captions não respondeu"
+  O motor não subiu. Menu Iniciar > Dynamic Captions > "Verificar instalação"
+  (o registro completo fica em %LOCALAPPDATA%\DynamicCaptions\instalacao.log).
+
+O painel diz que a versão do motor é outra
+  Rode o instalador de novo: ele atualiza os dois juntos.
+
+Trocar entre uso pessoal e trabalho pago
+  Rode o instalador de novo e escolha a outra opção (é rápido; não baixa tudo
+  outra vez).
+
+ESPAÇO EM DISCO
+---------------
+As legendas renderizadas ficam em %LOCALAPPDATA%\DynamicCaptions. No menu do
+painel (três pontos) há "Liberar espaço": mostra quanto cada coisa ocupa e
+apaga só o que nenhuma sequência do projeto aberto está usando.
+
+DESINSTALAR
+-----------
+Configurações > Aplicativos > Dynamic Captions > Desinstalar remove o painel, o
+motor e os atalhos. Projetos, legendas e renders continuam em
+%LOCALAPPDATA%\DynamicCaptions; apague essa pasta à mão para tirar tudo.
+Se for reinstalar depois, não apague %USERPROFILE%\.cache\huggingface (os
+modelos) nem %LOCALAPPDATA%\pip\cache (o PyTorch): com eles, a reinstalação
+leva minutos, não baixa tudo de novo. Se o Python 3.12 foi desinstalado, o
+instalador percebe que o Python próprio do motor quebrou e o refaz sozinho.
+
+LICENÇAS
+--------
+Código do Dynamic Captions: MIT com a "Commons Clause" v1.0 (LICENSE.txt).
+Modelos e bibliotecas que o instalador baixa e as regras de uso: TERCEIROS.txt.
+
+USO AVANÇADO (Prompt de Comando, em %LOCALAPPDATA%\DynamicCaptions\instalador)
+------------------------------------------------------------------------------
+  powershell -ExecutionPolicy Bypass -File instalar.ps1 -UsoPessoal | -UsoComercial
+      -PythonExe "C:\...\python.exe"   usa um Python 3.11/3.12 específico
+      -SemDependencias                 não reinstala as bibliotecas
+      -CertThumbprint <impressão>      assina os binários com um certificado de produção
+                                       (OV/EV ou Azure Trusted Signing): permite manter o
+                                       Smart App Control ligado. Certificado próprio não serve.

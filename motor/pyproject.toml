@@ -1,0 +1,60 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "smartcaption-engine"
+dynamic = ["version"]
+description = "Motor local do Dynamic Captions Studio: transcrição, falantes, legendas e renderização."
+requires-python = ">=3.11"
+dependencies = [
+    "pydantic>=2.7",
+    "fastapi>=0.115",
+    "fonttools>=4.40",  # nomes das fontes instaladas para o seletor de estilo
+    "pillow>=10",  # métricas de texto para composição por palavra/linha
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "httpx2>=2.0", "uvicorn>=0.30", "pillow>=10", "numpy>=1.26", "soundfile>=0.12", "playwright>=1.45"]
+# Depois de instalar: python -m playwright install chromium (testes da interface em navegador real)
+# Um extra por perfil de hardware (o PyTorch com CUDA se instala antes; ver README).
+# Perfil Preciso validado no Windows + Python 3.12 + RTX 4080; ver ADR 0004.
+base-motores = [
+    "uvicorn>=0.30",
+    "torch>=2.8,<2.12",
+    "torchaudio>=2.8,<2.12",
+    "numpy>=1.26",
+    "soundfile>=0.12",
+    "silero-vad>=6.2",
+    "pyannote.audio>=4.0.7,<5",
+    # A série 3 exige torch>=2.14 e substitui o wheel CUDA 2.11 no Windows.
+    "pytorch-metric-learning>=2.8.1,<3",
+    "suplime==0.2.0",  # pesos CC BY-NC (uso pessoal)
+    "sherpa-onnx>=1.12",
+    # Modelos de vários GB em várias conexões (Apache-2.0). Numa conexão só, um modelo de 4,2 GB
+    # chegou a levar 2h30; ver smartcaption/rede.py.
+    "hf_transfer>=0.1.8",
+]
+preciso = [
+    "smartcaption-engine[base-motores]",
+    "qwen-asr==0.0.6",  # fixa transformers 4.57.6 e accelerate 1.12.0
+]
+equilibrado = [
+    "smartcaption-engine[base-motores]",
+    "faster-whisper>=1.1",
+    "qwen-asr==0.0.6",
+]
+universal = ["smartcaption-engine[base-motores]"]
+ffmpeg = ["imageio-ffmpeg>=0.5"]  # FFmpeg embutido, se não houver um no PATH
+
+[tool.setuptools.dynamic]
+version = {attr = "smartcaption.__version__"}
+
+[tool.setuptools.packages.find]
+include = ["smartcaption*"]
+
+[tool.setuptools.package-data]
+smartcaption = ["web/*", "web/fonts/*", "web/icons/*", "cep/CSXS/*", "cep/jsx/*", "cep/icons/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

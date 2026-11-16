@@ -1,0 +1,66 @@
+DYNAMIC CAPTIONS 0.3.1 — COMPONENTES DE TERCEIROS
+==================================================
+
+O Dynamic Captions é distribuído sob MIT + Commons Clause (ver LICENSE.txt).
+Esse texto vale só para o código próprio do Dynamic Captions.
+
+O pacote do instalador leva só o código do Dynamic Captions e as fontes do
+painel. Os modelos de IA, o Python e as bibliotecas NÃO vão no pacote: o
+instalador baixa cada um da fonte oficial, no computador de quem instala.
+Mesmo assim, estas são as licenças que valem para o uso.
+
+Levantamento feito a partir dos arquivos do projeto (licenças declaradas pelos
+próprios componentes). Não é parecer jurídico.
+
+
+RESUMO
+------
+
+[OK] Vai no pacote: fontes Geist e Geist Mono (Vercel), SIL OFL 1.1
+     (web/fonts/OFL-Geist.txt).
+
+[ATENÇÃO — SÓ USO PESSOAL] Separador de vozes SUPlime (rewayai): pesos sob
+     CC BY-NC 4.0, proibido uso comercial. O instalador pergunta o tipo de uso:
+     em "uso pessoal" o SUPlime pode ser usado (com conta na Hugging Face);
+     em "trabalho pago" ele não é usado e entra um separador com licença
+     comercial. Quem legenda vídeo de cliente, de empresa ou qualquer trabalho
+     remunerado deve escolher "trabalho pago".
+
+[ATENÇÃO — GPL, BAIXADO NA INSTALAÇÃO] FFmpeg: o executável que o
+     imageio-ffmpeg baixa é uma compilação GPL do FFmpeg. Ele não vai no pacote
+     e roda como programa separado (o Dynamic Captions só chama o executável).
+     Código-fonte em https://ffmpeg.org. Quem redistribuir esse executável junto
+     com o Dynamic Captions precisa seguir a GPL.
+
+
+MODELOS (baixados na instalação)
+--------------------------------
+  Qwen3-ASR-1.7B e Qwen3-ForcedAligner-0.6B (Alibaba/Qwen)    Apache-2.0
+  Parakeet TDT 0.6B v3 (NVIDIA), via sherpa-onnx               CC BY 4.0
+  Whisper large-v3-turbo (OpenAI), via faster-whisper          MIT
+  Silero VAD v6                                                 MIT
+  SUPlime (rewayai)                                             CC BY-NC 4.0 (só uso pessoal)
+  pyannote segmentation 3.0, exportado pelo sherpa-onnx        MIT
+  WeSpeaker ResNet34 VoxCeleb                                   CC BY 4.0
+  pyannote speaker-diarization-community-1 (opcional)           CC BY 4.0
+
+Créditos exigidos pelas licenças CC BY 4.0: NVIDIA (Parakeet), WeSpeaker/
+VoxCeleb (Nagrani, Chung, Zisserman et al.), pyannote (Bredin et al., CNRS).
+
+
+BIBLIOTECAS (instaladas pelo pip, do PyPI)
+------------------------------------------
+  Python (PSF), PyTorch e torchaudio (BSD), NumPy (BSD), soundfile (BSD),
+  FastAPI (MIT), Uvicorn (BSD), Pydantic (MIT), Pillow (MIT-CMU),
+  fontTools (MIT), transformers e accelerate (Apache-2.0), qwen-asr
+  (Apache-2.0), pyannote.audio (MIT), suplime (código MIT), sherpa-onnx
+  (Apache-2.0), faster-whisper (MIT), hf_transfer (Apache-2.0), imageio-ffmpeg (BSD-2; o FFmpeg que ele
+  baixa é GPL, ver RESUMO).
+
+
+MARCAS
+------
+
+Adobe e Premiere Pro são marcas registradas ou marcas da Adobe nos Estados
+Unidos e/ou em outros países. O Dynamic Captions é um projeto independente:
+não é desenvolvido, afiliado, endossado nem patrocinado pela Adobe.

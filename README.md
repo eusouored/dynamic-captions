@@ -4,49 +4,61 @@
   <img alt="Dynamic Captions" src="assets/logo-light.svg" height="62">
 </picture>
 <p><strong>Transforme a fala em legendas animadas na timeline.</strong></p>
-<p><a href="https://github.com/eusouored/dynamic-captions/releases/download/v0.3.0/Instalar-Dynamic-Captions-0.3.0.exe"><strong>Baixar para Windows</strong></a> · <a href="https://github.com/eusouored/dynamic-captions/releases">Ver versões</a></p>
-<p>Windows 10 ou 11 (64 bits) · Premiere Pro 25.0 ou mais recente</p>
+<p><a href="https://github.com/eusouored/dynamic-captions/releases/latest"><strong>Baixar para Windows</strong></a></p>
+<p>Windows 10 ou 11 (64 bits) · Adobe Premiere Pro 25 ou mais recente</p>
 </div>
 
-## O que faz
+Plugin para o Adobe Premiere Pro que transcreve a fala, separa as vozes e cria legendas animadas direto na timeline. A transcrição roda no seu computador, num motor local em Python. Nenhum áudio é enviado para servidores.
 
-O Dynamic Captions transcreve a fala, diferencia as vozes e cria legendas animadas no Premiere. Serve para agilizar legendas de entrevistas, vídeos curtos e gravações com mais de um participante.
+## Instalar
 
-## No Premiere
+1. Baixe `Instalar-Dynamic-Captions-<versão>.exe` na [versão mais recente](https://github.com/eusouored/dynamic-captions/releases/latest).
+2. Execute e siga as telas. Na primeira vez, o instalador baixa o Python, as bibliotecas e os modelos que o seu computador vai usar: com placa NVIDIA, cerca de 3 GB de bibliotecas e até 7 GB de modelos.
+3. No Premiere: **Janela › Extensões › Dynamic Captions**.
 
-1. Abra o Dynamic Captions no Premiere e selecione o material a legendar.
-2. Gere a transcrição e revise o texto e a divisão das legendas.
-3. Escolha o estilo e envie as legendas para a timeline.
+O passo a passo completo, os problemas comuns e a desinstalação estão em [LEIA-ME.txt](LEIA-ME.txt).
 
-## Instalação
+### Requisitos
 
-1. Baixe o instalador acima e feche o Premiere.
-2. Execute o instalador e siga as instruções.
-3. Reabra o Premiere e procure **Dynamic Captions** no menu **Janela**.
-
-Internet durante a instalação e cerca de 15 GB livres no disco `C:`. Uma GPU NVIDIA com 8 GB ou mais de VRAM é recomendada.
+- Windows 10 ou 11 (64 bits)
+- Adobe Premiere Pro 25 (2025) ou mais novo
+- Internet durante a instalação e uns 15 GB livres no disco C:
+- Recomendado: placa NVIDIA com 8 GB ou mais (também funciona sem, só que mais devagar)
 
 ## Interface
 
 <div align="center">
 <picture>
   <source media="(prefers-color-scheme: light)" srcset="assets/interface-light.png">
-  <img alt="Painel do Dynamic Captions com prévia da legenda, estilos e controles de fonte e posição." src="assets/interface-dark.png" width="480">
+  <img alt="Dynamic Captions com a prévia da legenda e controles de estilo, fonte e posição." src="assets/interface-dark.png" width="480">
 </picture>
 <p><em>Compare estilos e ajuste a tipografia e a posição na prévia da legenda.</em></p>
 <p>Capturas com dados de demonstração · <a href="assets/interface-dark.png">Tema escuro</a> · <a href="assets/interface-light.png">Tema claro</a></p>
 </div>
 
-## Suporte e licenças
+## Estrutura
 
-Para relatar um problema, informe as versões do plugin e do Premiere e descreva os passos para reproduzi-lo. [Abrir um chamado](https://github.com/eusouored/dynamic-captions/issues/new)
+| Pasta | O que é |
+|---|---|
+| `painel/` | Painel CEP do Premiere (interface e ExtendScript) |
+| `motor/` | Motor local em Python: transcrição, separação de vozes, legendas e renderização |
+| `instalador/` | Scripts do instalador (`instalar.ps1`, `runtime-producao.ps1`, `desinstalar.ps1`) |
 
-Para legendas de clientes, empresas ou projetos remunerados, selecione **Trabalho pago** na instalação. O separador SUPlime é reservado para uso não comercial.
+## Separação de vozes e uso comercial
 
-[Licença](https://github.com/eusouored/dynamic-captions/releases/download/v0.3.0/LICENSE.txt) · [Avisos de terceiros](https://github.com/eusouored/dynamic-captions/releases/download/v0.3.0/TERCEIROS.txt) · [Conferir SHA-256](https://github.com/eusouored/dynamic-captions/releases/download/v0.3.0/SHA256SUMS.txt)
+O instalador pergunta como o plugin vai ser usado:
+
+- **Uso pessoal:** pode usar o SUPlime, o separador de vozes mais preciso. Os pesos dele são CC BY-NC 4.0 (sem uso comercial) e exigem uma conta grátis na Hugging Face.
+- **Trabalho pago:** usa só separadores com licença comercial e não precisa de conta.
+
+## Licença
+
+Código do Dynamic Captions: MIT com a "Commons Clause" v1.0 ([LICENSE.txt](LICENSE.txt)). Pode usar, estudar, modificar e redistribuir, mas não pode vender o software nem um serviço cujo valor venha dele.
+
+Os modelos, o Python e as bibliotecas **não** fazem parte deste repositório. O instalador baixa cada um da fonte oficial. As licenças de cada um e as regras de uso estão em [TERCEIROS.txt](TERCEIROS.txt).
+
+Adobe e Premiere Pro são marcas registradas ou marcas da Adobe nos Estados Unidos e/ou em outros países. O Dynamic Captions é um projeto independente: não é desenvolvido, afiliado, endossado nem patrocinado pela Adobe.
 
 ## Outros plugins Dynamic
 
 [Dynamic Anchor](https://github.com/eusouored/dynamic-anchor) · [Dynamic Cut](https://github.com/eusouored/dynamic-cut)
-
-<sub>Projeto independente para Adobe Premiere Pro.</sub>

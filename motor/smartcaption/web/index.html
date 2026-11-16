@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dynamic Captions</title>
+<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="dynamic-captions.css">
+<script src="theme.js"></script>
+</head>
+<body>
+<header class="dc-top"><img class="dc-lockup dc-on-dark" src="icons/dc-lockup-dark.svg" alt="Dynamic Captions"><img class="dc-lockup dc-on-light" src="icons/dc-lockup-light.svg" alt="Dynamic Captions"><span class="dc-ver">Versão 0.3.1</span></header>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <filter id="sc-wobble" x="-5%" y="-10%" width="110%" height="120%">
+    <feTurbulence id="sc-wobble-noise" type="fractalNoise" baseFrequency="0.012" numOctaves="1" seed="1"/>
+    <feDisplacementMap in="SourceGraphic" scale="6" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</svg>
+<div id="app" aria-live="polite"></div>
+<audio id="player" preload="none"></audio>
+<script src="host.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,163 @@
+/* ============================================================
+   Dynamic Captions 0.3.1 — interface da família Dynamic (kit 2026-11-14)
+   Carrega depois de app.css e troca só o visual. O app.js continua desenhando
+   tudo dentro de #app; a marca fica num cabeçalho fixo acima dele (index.html).
+   Tema claro: classe .light no <html> (theme.js, pela cor do painel do Premiere).
+   Céu (#6CB8FF) só no botão principal, nas seleções, na palavra em foco e no
+   estado; segmentado escolhido fica neutro elevado. As fichas dos modelos
+   continuam pretas: mostram a legenda como ela fica no vídeo.
+   ============================================================ */
+:root {
+  --ground: #1B1B1F; --sheet: #222227; --sunk: #2A2A30; --on: #3A3A42;
+  --hover: #26262C; --press: #2E2E35; --field-hover: #5A5A64;
+  --ink: #F5F3F0; --ink-2: #B8B3AC; --ink-3: #85807A; --on-ink: #1B1B1F;
+  --line: #2E2E35; --line-2: #42424B;
+  --blue: #6CB8FF; --blue-soft: rgba(108, 184, 255, .14); --blue-line: rgba(108, 184, 255, .55);
+  --mark: #6CB8FF; --mark-soft: rgba(108, 184, 255, .16);
+  --chip: #0E0E10; --chip-2: #15161A;
+  --ok: #5BD08F; --ok-soft: rgba(91, 208, 143, .12); --warn: #F2C14E; --warn-soft: rgba(242, 193, 78, .12);
+  --r: 10px; --r-sm: 8px;
+  --dc-accent: #6CB8FF; --dc-accent-hover: #8CC8FF; --dc-footer: #1F1F24; --dc-ink: #1B1B1F;
+}
+html.light {
+  color-scheme: light;
+  --ground: #F5F3F0; --sheet: #FFFFFF; --sunk: #F2EFEA; --on: #FFFFFF;
+  --hover: #F2EFEA; --press: #E9E5DF; --field-hover: #B9B2A8;
+  --ink: #1B1B1F; --ink-2: #5E5952; --ink-3: #8F8981; --on-ink: #F5F3F0;
+  --line: #E3DED6; --line-2: #D2CCC2;
+  --blue: #1F6FC2; --blue-soft: rgba(108, 184, 255, .22); --blue-line: #4A9BE8;
+  --mark: #6CB8FF; --mark-soft: rgba(108, 184, 255, .24);
+  --ok: #1E7A47; --ok-soft: rgba(30, 158, 90, .12); --warn: #8F5D00; --warn-soft: rgba(242, 193, 78, .18); --err: #C42B2F; --err-soft: rgba(229, 72, 77, .10);
+  --dc-footer: #EFEBE5;
+}
+html, body { background: var(--ground); color: var(--ink); }
+body { display: flex; flex-direction: column; }
+#app { flex: 1 1 auto; height: auto; min-height: 0; }
+::selection { background: var(--mark); color: var(--dc-ink); }
+:focus-visible { outline-color: var(--blue); }
+
+/* ---------- cabeçalho da marca (fixo, fora do #app) ---------- */
+.dc-top { flex: none; display: flex; align-items: center; gap: 10px; height: 52px; padding: 0 16px; border-bottom: 1px solid var(--line); background: var(--ground); }
+.dc-lockup { display: block; height: 19px; width: auto; }
+.dc-on-light, html.light .dc-on-dark { display: none; }
+html.light .dc-on-light { display: block; }
+.dc-ver { margin-left: auto; font: 400 11px var(--sans); color: var(--ink-3); white-space: nowrap; }
+
+/* ---------- barra de contexto: sequência, trecho, estado e menu ---------- */
+.top { padding: 10px 8px 10px 16px; background: var(--sheet); border-bottom: 1px solid var(--line); }
+.ttl { gap: 2px; }
+.ttl::before { content: "Sequência"; font: 700 10px/14px var(--sans); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+.ttl h1 { font-size: 13px; font-weight: 700; letter-spacing: 0; line-height: 18px; }
+.ttl .tc { font-size: 11px; }
+.eng { height: 22px; padding: 0 9px; border-radius: 6px; background: var(--sunk); font-size: 11px; font-weight: 600; color: var(--ink-2); }
+.eng.ok { color: var(--ok); } .eng.ok i { background: var(--ok); }
+.eng i { width: 6px; height: 6px; }
+/* até 379 px o app esconde o texto do estado: fica só o ponto, sem a caixa */
+@media (max-width: 379px) { .eng { padding: 0 4px; background: none; } }
+.ib:hover:not(:disabled) { background: var(--sunk); }
+.menu { background: var(--sheet); box-shadow: 0 0 0 1px var(--line-2), 0 12px 28px -10px rgba(0, 0, 0, .5); }
+.menu button:hover { background: var(--sunk); }
+
+/* ---------- corpo e seções ---------- */
+.body { padding: 0 8px 16px 16px; }
+.sec { margin-top: 20px; }
+.sec-head { padding: 0 0 10px; }
+.sec-head h2 { font-size: 14px; font-weight: 700; letter-spacing: 0; text-transform: none; color: var(--ink); }
+.tlink { color: var(--blue); }
+.tlink .cnt { background: var(--sunk); color: var(--ink-2); border-radius: 6px; }
+
+/* ---------- Visual: modelos em grade de duas colunas, estrela no canto ---------- */
+.specs { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; background: none; box-shadow: none; border-radius: 0; overflow: visible; }
+.spec-row { border-top: 0; border-radius: 10px; background: var(--sheet); box-shadow: 0 0 0 1px var(--line); overflow: hidden; }
+.spec { padding: 6px; }
+.spec:hover { background: var(--hover); }
+.spec[aria-pressed="true"] { background: var(--blue-soft); }
+.spec[aria-pressed="true"] .sp-chip { box-shadow: 0 0 0 2px var(--dc-accent); }
+.sp-check { display: none; }
+.sp-chip { height: 48px; padding: 0 8px; border-radius: 7px; background: var(--chip); }
+/* amostra menor na grade (a frase vem da fala do projeto; em caixa-alta ocupa mais) */
+.specs .ink { font-size: 11px; letter-spacing: -.01em; }
+.sp-chip { padding: 0 6px; }
+.spec .sp-name { padding: 4px 2px 0; font-size: 11px; color: var(--ink-3); }
+.fav { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; border-left: 0; border-radius: 6px; background: rgba(14, 14, 16, .72); color: rgba(255, 255, 255, .55); }
+.fav:hover { background: rgba(14, 14, 16, .9); color: #FFFFFF; }
+.fav[aria-pressed="true"] { color: var(--dc-accent); }
+.fav .ic { width: 13px; height: 13px; }
+.fav.armed { width: auto; height: 24px; padding: 0 8px; background: var(--err); color: #111; }
+@media (max-width: 359px) { .specs { grid-template-columns: minmax(0, 1fr); } }
+
+/* ---------- ajustes (Fonte, Posicionamento) ---------- */
+.adj { background: var(--sheet); box-shadow: 0 0 0 1px var(--line); border-radius: 12px; }
+.aa { background: var(--chip); color: #FFFFFF; border-radius: 10px; }
+.field { background: var(--ground); border-color: var(--line-2); border-radius: var(--r-sm); }
+html.light .field { background: #ECE8E2; }
+.field:focus { border-color: var(--dc-accent); box-shadow: 0 0 0 3px var(--blue-soft); }
+.search { background: var(--sunk); border-radius: var(--r-sm); }
+.search:focus-within { box-shadow: 0 0 0 2px var(--dc-accent); }
+.tgl { border-color: var(--line-2); border-radius: var(--r-sm); }
+.tgl[aria-pressed="true"] { background: var(--on); border-color: var(--line-2); color: var(--ink); }
+html.light .tgl[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--ground); }
+.seg { background: var(--ground); box-shadow: inset 0 0 0 1px var(--line); border-radius: 10px; padding: 3px; }
+html.light .seg { background: #ECE8E2; }
+.seg button { border-radius: 7px; }
+.seg button[aria-pressed="true"] { background: var(--on); color: var(--ink); font-weight: 700; box-shadow: none; }
+html.light .seg button[aria-pressed="true"] { box-shadow: 0 0 0 1px var(--line-2); }
+.sw { border-color: var(--line-2); background: var(--sunk); }
+.chipbtn[aria-pressed="true"] { background: var(--on); color: var(--ink); border-color: var(--line-2); }
+input[type="checkbox"] { accent-color: var(--dc-accent); }
+input[type="range"]::-webkit-slider-runnable-track { background: var(--line-2); }
+input[type="range"]::-webkit-slider-thumb { background: var(--sheet); border: 3px solid var(--dc-accent); box-shadow: none; }
+.switch .track { background: var(--line-2); }
+.switch input:checked + .track { background: var(--dc-accent); }
+.switch input:checked + .track::after { background: var(--dc-ink); }
+.badge { background: var(--blue-soft); color: var(--blue); border-radius: 6px; }
+.disclose { color: var(--ink); }
+
+/* ---------- prévia ---------- */
+.frame { border-radius: 12px; box-shadow: 0 0 0 1px var(--line); }
+.frame .picked { outline-color: var(--dc-accent); }
+.frame .guide { background: var(--dc-accent); }
+
+/* ---------- fala ---------- */
+.doc { background: var(--sheet); box-shadow: 0 0 0 1px var(--line); border-radius: 12px; }
+.para { border-top-color: var(--line); }
+.tag { background: var(--sunk); border-radius: 6px; }
+.w:hover { background: var(--sunk); }
+.w.live { background: var(--mark-soft); }
+.w.sel { background: var(--mark); box-shadow: 0 0 0 2px var(--mark); color: var(--dc-ink); }
+.w.styled { text-decoration-color: var(--dc-accent); }
+.w-edit { background: var(--mark); color: var(--dc-ink); outline-color: var(--ink); }
+.wcard { background: var(--ground); box-shadow: inset 0 0 0 1px var(--blue-line); border-radius: 12px; }
+html.light .wcard { background: #ECE8E2; }
+.pick[aria-checked="true"] { background: var(--blue-soft); }
+.pick[aria-checked="true"] .dot { border-color: var(--dc-accent); }
+
+/* ---------- botões ---------- */
+.btn { border-color: var(--line-2); background: var(--sunk); border-radius: 10px; }
+.btn.dark { background: var(--dc-accent); border-color: var(--dc-accent); color: var(--dc-ink); font-weight: 700; }
+.btn.dark:hover:not(:disabled) { background: var(--dc-accent-hover); border-color: var(--dc-accent-hover); }
+
+/* ---------- rodapé ---------- */
+.act { background: var(--dc-footer); border-top-color: var(--line); padding: 10px 16px 12px; }
+.act .go { border-radius: 10px; }
+.bar i { background: var(--dc-accent); }
+.toast { background: var(--ink); color: var(--ground); }
+
+/* ---------- área rolável: borda direita na mesma linha do cabeçalho e do rodapé ----------
+   A rolagem reserva 10 px de barra (::-webkit-scrollbar do app.css): 6 + 10 = 16 px, como o resto.
+   O botão ··· tem 32 px com o ícone no meio: a caixa fica a 8 px da borda e o ícone, a 16. */
+.body { scrollbar-gutter: stable; padding-right: 6px; }
+/* rótulos em cima dos controles até 419 px: os segmentados de 4 opções ("Preenche") cabem inteiros */
+@media (max-width: 419px) { .form { grid-template-columns: minmax(0, 1fr); gap: 4px; } .form > .lbl { margin-top: 6px; } }
+.body::-webkit-scrollbar-thumb, .col-main::-webkit-scrollbar-thumb, .col-side::-webkit-scrollbar-thumb { border-color: var(--ground); background: var(--line-2); }
+
+@media (min-width: 900px) {
+  .dc-top { padding: 0 24px; }
+  .top { padding: 10px 16px 10px 24px; }
+  .ttl { flex-direction: column; align-items: flex-start; gap: 2px; }
+  .ttl h1 { font-size: 13px; }
+  .body { padding: 0 0 0 20px; }
+  .col-main { padding-left: 4px; }
+  .col-side { padding-right: 14px; }   /* 14 + 10 de barra = 24, a margem da janela larga */
+  .act { padding: 12px 24px; }
+}

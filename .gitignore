@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+build/
+.venv/
+
+# Pacotes gerados (vão nos Releases, não no repositório)
+dist/
+staging/
+*.zip
+*.zxp
+*.exe
+
+# Certificados, senhas e tokens: nunca no repositório
+*.p12
+*.pfx
+*.key
+*.pem
+senha*.txt
+.env
+token
+
+# Arquivos locais do motor
+engine.json
+engine.lock
+launch.json
+*.log
